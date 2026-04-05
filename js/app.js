@@ -38,4 +38,7 @@ class AmbientMixer {
 document.addEventListener('DOMContentLoaded', () => {
 	const app = new AmbientMixer();
 	app._init();
+
+	// make app global for testing
+	window.app = app;
 });
