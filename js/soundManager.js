@@ -16,8 +16,6 @@ export class soundManger {
 			// add sound to audio EL map
 			this.audioElements.set(soundId, audio);
 
-			this.isPlaying = true;
-
 			return true;
 		} catch (error) {}
 		console.error(`Failed to load Sound ${soundId}, ${error}`);
@@ -32,7 +30,7 @@ export class soundManger {
 		if (audio) {
 			try {
 				await audio.play();
-				console.log(`playing: ${soundID}`);
+				this.isPlaying = true;
 				return true;
 			} catch (error) {
 				console.error(`Failed to play ${soundID}`, error);
@@ -49,7 +47,7 @@ export class soundManger {
 		if (audio && !audio.paused) {
 			try {
 				audio.pause();
-				console.log(`paused: ${soundID}`);
+				this.isPlaying = false;
 				return true;
 			} catch (error) {
 				console.error(`Failed to pause ${soundID}`, error);
@@ -64,14 +62,13 @@ export class soundManger {
 		const audio = this.audioElements.get(soundID);
 
 		if (!audio) {
-			console.log(`Sound ${soundID} not found`);
+			console.error(`Sound ${soundID} not found`);
 			return false;
 		}
 
 		// convert 0-100 to 0 - 1
 
 		audio.volume = volume / 100;
-		console.log(`Volume for ${soundID}: ${volume}`);
 		return true;
 	}
 }
