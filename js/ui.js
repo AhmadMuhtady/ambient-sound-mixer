@@ -94,4 +94,29 @@ export class UI {
 			}
 		}
 	}
+
+	_updateVolumeDisplay(soundId, volume) {
+		const card = document.querySelector(`[data-sound="${soundId}"]`);
+
+		if (card) {
+			//update number display
+			const volumeValue = card.querySelector('.volume-value');
+			if (volumeValue) {
+				volumeValue.textContent = volume;
+			}
+
+			// update volume bar
+
+			const volumeBarVisual = card.querySelector('.volume-bar-fill');
+			if (volumeBarVisual) {
+				volumeBarVisual.style.width = `${volume}%`;
+			}
+		}
+
+		const slider = card.querySelector('.volume-slider');
+
+		if (slider) {
+			slider.value = volume;
+		}
+	}
 }
