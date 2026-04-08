@@ -10,6 +10,7 @@ class AmbientMixer {
 		this.presetManager = null;
 		this.timer = null;
 		this.currentSoundState = {};
+		this.masterVolume = 100;
 		this.isInitialized = false;
 	}
 
@@ -48,6 +49,16 @@ class AmbientMixer {
 				this._setSoundVolume(soundId, volume);
 			}
 		});
+
+		//handle master volume slider
+
+		const masterVolumeSlider = document.getElementById('masterVolume');
+		if (masterVolumeSlider) {
+			masterVolumeSlider.addEventListener('input', (e) => {
+				const volumeMaster = parseInt(e.target.value);
+				this._setMasterVolume(volumeMaster);
+			});
+		}
 	}
 
 	// load all sounds files
@@ -95,11 +106,47 @@ class AmbientMixer {
 	}
 
 	_setSoundVolume(soundId, volume) {
-		// update sound volume in sound manager
-		this.soundManger._setVolume(soundId, volume);
+		//calculate effective volume with master volume
+		const effectiveVolume = (volume * this.masterVolume) / 100;
 
+		// update visual display
+		const audio = this.soundManger.audioElements.get(soundId);
+
+		if (audio) {
+			audio.volume = effectiveVolume / 100;
+		}
 		// update display
 		this.ui._updateVolumeDisplay(soundId, volume);
+	}
+
+	_setMasterVolume(volume) {
+		this.masterVolume = volume;
+
+		// update display
+		const masterVolumeValue = document.getElementById('masterVolumeValue');
+		if (masterVolumeValue) {
+			masterVolumeValue.textContent = `${volume}%`;
+		}
+
+		// apply master volume to all current playing sound
+		this._applyMasterVolumeToAll();
+	}
+
+	_applyMasterVolumeToAll() {
+		for (const [soundId, audio] of this.soundManger.audioElements) {
+			if (!audio.paused) {
+				const card = document.querySelector(`[data-sound="${soundId}"]`);
+				const slider = card?.querySelector('.volume-slider');
+				if (slider) {
+					const individualVolume = parseInt(slider.value);
+					// calculate effective volume (individual * master / 100)
+					const effectiveVolume = (individualVolume * this.masterVolume) / 100;
+
+					// apply to actual element
+					audio.volume = effectiveVolume / 100;
+				}
+			}
+		}
 	}
 }
 
