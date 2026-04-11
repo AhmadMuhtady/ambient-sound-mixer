@@ -90,4 +90,14 @@ export class soundManager {
 		}
 		this.isPlaying = false;
 	}
+
+	_stopAll() {
+		for (const [soundId, audio] of this.audioElements) {
+			if (!audio.paused) {
+				audio.pause();
+			}
+			audio.currentTime = 0; //reset to beginning
+		}
+		this.isPlaying = false;
+	}
 }
