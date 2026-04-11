@@ -1,4 +1,4 @@
-export class soundManger {
+export class soundManager {
 	constructor() {
 		this.audioElements = new Map();
 		this.isPlaying = false;
@@ -17,10 +17,10 @@ export class soundManger {
 			this.audioElements.set(soundId, audio);
 
 			return true;
-		} catch (error) {}
-		console.error(`Failed to load Sound ${soundId}, ${error}`);
-
-		return false;
+		} catch (error) {
+			console.error(`Failed to load Sound ${soundId}, ${error}`);
+			return false;
+		}
 	}
 
 	// play specific sound
@@ -47,7 +47,6 @@ export class soundManger {
 		if (audio && !audio.paused) {
 			try {
 				audio.pause();
-				this.isPlaying = false;
 				return true;
 			} catch (error) {
 				console.error(`Failed to pause ${soundID}`, error);
@@ -70,5 +69,25 @@ export class soundManger {
 
 		audio.volume = volume / 100;
 		return true;
+	}
+
+	_playAll() {
+		for (const [soundId, audio] of this.audioElements) {
+			if (audio.paused) {
+				audio
+					.play()
+					.catch((err) => console.error(`Failed to play ${soundId}`, err)); // ✅
+			}
+		}
+		this.isPlaying = true;
+	}
+
+	_pauseAll() {
+		for (const [soundId, audio] of this.audioElements) {
+			if (!audio.paused) {
+				audio.pause();
+			}
+		}
+		this.isPlaying = false;
 	}
 }

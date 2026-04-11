@@ -99,24 +99,27 @@ export class UI {
 		const card = document.querySelector(`[data-sound="${soundId}"]`);
 
 		if (card) {
-			//update number display
 			const volumeValue = card.querySelector('.volume-value');
-			if (volumeValue) {
-				volumeValue.textContent = volume;
-			}
-
-			// update volume bar
+			if (volumeValue) volumeValue.textContent = volume;
 
 			const volumeBarVisual = card.querySelector('.volume-bar-fill');
-			if (volumeBarVisual) {
-				volumeBarVisual.style.width = `${volume}%`;
-			}
+			if (volumeBarVisual) volumeBarVisual.style.width = `${volume}%`;
+
+			const slider = card.querySelector('.volume-slider'); // ✅ inside guard
+			if (slider) slider.value = volume;
 		}
+	}
 
-		const slider = card.querySelector('.volume-slider');
+	_updateMainPlayBtn(isPlaying) {
+		if (!this.playPauseButton) return;
+		const icon = this.playPauseButton.querySelector('i');
 
-		if (slider) {
-			slider.value = volume;
+		if (isPlaying) {
+			icon.classList.remove('fa-play');
+			icon.classList.add('fa-pause');
+		} else {
+			icon.classList.remove('fa-pause');
+			icon.classList.add('fa-play');
 		}
 	}
 }
