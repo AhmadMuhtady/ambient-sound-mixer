@@ -27,6 +27,12 @@ class AmbientMixer {
 			this._setupAllEventListener();
 
 			this._loadAllSound();
+
+			// init presets sounds
+			sounds.forEach((sound) => {
+				this.currentSoundState[sound.id] = 0;
+			});
+
 			this.isInitialized = true;
 		} catch (error) {
 			console.error(`Failed to initialize app , ${error}`);
@@ -38,6 +44,12 @@ class AmbientMixer {
 			if (e.target.closest('.play-btn')) {
 				const soundId = e.target.closest('.play-btn').dataset.sound;
 				await this._toggleSound(soundId);
+			}
+
+			//default preset btn
+			if (e.target.closest('.preset-btn')) {
+				const presetKey = e.target.closest('.preset-btn').dataset.preset;
+				await this._loadPresetSounds(presetKey);
 			}
 		});
 
@@ -154,6 +166,9 @@ class AmbientMixer {
 		}
 	}
 	_setSoundVolume(soundId, volume) {
+		// set sound volume
+		this.currentSoundState[soundId] = volume;
+
 		//calculate effective volume with master volume
 		const effectiveVolume = (volume * this.masterVolume) / 100;
 
@@ -215,8 +230,60 @@ class AmbientMixer {
 	//reset everything to default state
 	_resetAll() {
 		this.soundManager._stopAll();
-		this._setMasterVolume = 100;
+		this._setMasterVolume(100);
+
+		//reset sound state
+		sounds.forEach((sound) => {
+			this.currentSoundState[sound.id] = 0;
+		});
+
+		//reset UI
 		this.ui._resetUI();
+	}
+
+	_loadPresetSounds(presetKey) {
+		const preset = defaultPresets[presetKey];
+
+		if (!preset) {
+			console.error(`Preset: ${presetKey} not found`);
+			return;
+		}
+
+		//first stop all sounds
+		this.soundManager._stopAll();
+
+		//reset all volume to zero
+		sounds.forEach((sound) => {
+			this.currentSoundState[sound.id] = 0;
+			this.ui._updateVolumeDisplay(sound.id, 0);
+			this.ui._updateSoundPlayBtn(sound.id, false);
+		});
+
+		//apply preset volume
+		for (const [soundId, volume] of Object.entries(preset.sounds)) {
+			this.currentSoundState[soundId] = volume;
+			this.ui._updateVolumeDisplay(soundId, volume);
+
+			// effective Volume
+
+			const effectiveVolume = (volume * this.masterVolume) / 100;
+
+			//get audio element
+			const audio = this.soundManager.audioElements.get(soundId);
+
+			if (audio) {
+				audio.volume = effectiveVolume / 100;
+
+				audio
+					.play()
+					.catch((err) => console.error(`Failed to play ${soundId}`, err));
+				this.ui._updateSoundPlayBtn(soundId, true);
+			}
+		}
+
+		//update main btn and state
+		this.soundManager.isPlaying = true;
+		this.ui._updateMainPlayBtn(true);
 	}
 }
 
