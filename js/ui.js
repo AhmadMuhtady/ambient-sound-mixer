@@ -149,4 +149,17 @@ export class UI {
 		this.masterVolumeSlider.value = 100;
 		this.masterVolumeValue.textContent = '100%';
 	}
+
+	// showModal
+	_showModal() {
+		this.modal.classList.remove('hidden');
+		this.modal.classList.add('flex');
+		document.getElementById('presetName').focus();
+	}
+
+	_hideModal() {
+		this.modal.classList.remove('flex');
+		this.modal.classList.add('hidden');
+		document.getElementById('presetName').value = '';
+	}
 }
