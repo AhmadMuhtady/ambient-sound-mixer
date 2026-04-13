@@ -183,4 +183,23 @@ export class UI {
 		const presetBtn = this._createCustomPresetBtn(name, presetId);
 		this.customPresetsContainer.appendChild(presetBtn);
 	}
+
+	//highlight active preset
+	_setActivePreset(presetId) {
+		//Remove active class from all btns
+		document
+			.querySelectorAll('.preset-btn, .custom-preset-btn')
+			.forEach((btn) => {
+				btn.classList.remove('preset-active');
+			});
+
+		// add active class active
+		const activeBtn = document.querySelector(
+			`.preset-btn[data-preset="${presetId}"], .custom-preset-btn[data-preset="${presetId}"]`,
+		);
+
+		if (activeBtn) {
+			activeBtn.classList.add('preset-active');
+		}
+	}
 }

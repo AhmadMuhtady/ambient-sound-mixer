@@ -16,6 +16,11 @@ export class PresetManager {
 		);
 	}
 
+	// load Custom preset by ID
+	_loadPreset(presetId) {
+		return this.customPresets[presetId] || null;
+	}
+
 	_savePreset(name, soundState) {
 		const presetId = crypto.randomUUID();
 

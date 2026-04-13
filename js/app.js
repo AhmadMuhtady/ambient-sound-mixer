@@ -55,6 +55,11 @@ class AmbientMixer {
 				const presetKey = e.target.closest('.preset-btn').dataset.preset;
 				await this._loadPresetSounds(presetKey);
 			}
+
+			if (e.target.closest('.custom-preset-btn')) {
+				const presetKey = e.target.closest('.custom-preset-btn').dataset.preset;
+				await this._loadPresetSounds(presetKey, true);
+			}
 		});
 
 		//handle volume slider changes
@@ -164,12 +169,13 @@ class AmbientMixer {
 			this.ui._updateSoundPlayBtn(soundId, true);
 		} else {
 			// if its playing shut it off
-			this.soundManager._pauseSound(soundId);
 
-			//set current sound state to zero when paused
+			this.soundManager._pauseSound(soundId);
 			this.currentSoundState[soundId] = 0;
 
 			this.ui._updateSoundPlayBtn(soundId, false);
+			//set current sound state to zero when paused
+			this.currentSoundState[soundId] = 0;
 		}
 
 		// update main play btn state
@@ -273,7 +279,10 @@ class AmbientMixer {
 	//reset everything to default state
 	_resetAll() {
 		this.soundManager._stopAll();
-		this._setMasterVolume(100);
+		this.masterVolume = 100;
+
+		//reset active preset
+		this.ui._setActivePreset(null);
 
 		//reset sound state
 		sounds.forEach((sound) => {
@@ -284,8 +293,14 @@ class AmbientMixer {
 		this.ui._resetUI();
 	}
 
-	_loadPresetSounds(presetKey) {
-		const preset = defaultPresets[presetKey];
+	_loadPresetSounds(presetKey, custom = false) {
+		let preset;
+
+		if (custom) {
+			preset = this.presetManager._loadPreset(presetKey);
+		} else {
+			preset = defaultPresets[presetKey];
+		}
 
 		if (!preset) {
 			console.error(`Preset: ${presetKey} not found`);
@@ -327,6 +342,11 @@ class AmbientMixer {
 		//update main btn and state
 		this.soundManager.isPlaying = true;
 		this.ui._updateMainPlayBtn(true);
+
+		//set active preset
+		if (presetKey) {
+			this.ui._setActivePreset(presetKey);
+		}
 	}
 
 	_showSavePresetModal() {
