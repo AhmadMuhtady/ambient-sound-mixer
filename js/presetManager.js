@@ -47,4 +47,14 @@ export class PresetManager {
 			(preset) => preset.name === name,
 		);
 	}
+
+	//delete from local storage
+	_deleteCustomPreset(presetId) {
+		if (this.customPresets[presetId]) {
+			delete this.customPresets[presetId];
+			this._saveCustomPresets();
+			return true;
+		}
+		return false;
+	}
 }

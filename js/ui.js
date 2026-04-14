@@ -202,4 +202,14 @@ export class UI {
 			activeBtn.classList.add('preset-active');
 		}
 	}
+
+	_removeCustomPrest(presetId) {
+		const btn = document.querySelector(
+			`.custom-preset-btn[data-preset="${presetId}"]`,
+		);
+
+		if (btn) {
+			btn.remove();
+		}
+	}
 }
