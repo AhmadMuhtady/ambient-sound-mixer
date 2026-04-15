@@ -2,6 +2,7 @@ import { sounds, defaultPresets } from './soundData.js';
 import { soundManager } from './soundManager.js';
 import { UI } from './ui.js';
 import { PresetManager } from './presetManager.js';
+import { Timer } from './timer.js';
 
 class AmbientMixer {
 	// Init dependencies and default state
@@ -9,7 +10,10 @@ class AmbientMixer {
 		this.soundManager = new soundManager();
 		this.ui = new UI();
 		this.presetManager = new PresetManager();
-		this.timer = null;
+		this.timer = new Timer(
+			() => this._onTimerComplete(),
+			(minutes, seconds) => this.ui._updateTimerDisplay(minutes, seconds),
+		);
 		this.currentSoundState = {};
 		this.masterVolume = 100;
 		this.isInitialized = false;
@@ -56,9 +60,6 @@ class AmbientMixer {
 				const presetId = e.target.closest('.delete-preset').dataset.preset;
 
 				this._deletePreset(presetId);
-
-				if()
-				return;
 			}
 
 			//default preset btn
@@ -135,6 +136,21 @@ class AmbientMixer {
 		if (confirmBtn) {
 			confirmBtn.addEventListener('click', () => {
 				this._saveCurrentPreset();
+			});
+		}
+
+		//timer select
+		const timerSelect = document.getElementById('timerSelect');
+		if (timerSelect) {
+			timerSelect.addEventListener('change', (e) => {
+				const minutes = parseInt(e.target.value);
+				if (minutes > 0) {
+					this.timer._start(minutes);
+					console.log(`timer is on ${minutes}`);
+				} else {
+					this.timer._stop();
+					console.log(`timer is on out`);
+				}
 			});
 		}
 	}
@@ -290,8 +306,11 @@ class AmbientMixer {
 	//reset everything to default state
 	_resetAll() {
 		this.soundManager._stopAll();
-		this.masterVolume = 100;
+		this._setMasterVolume(100);
 
+		//reset timer
+		this.timer._stop();
+		this.ui.timerSelect.value = '0';
 		//reset active preset
 		this.ui._setActivePreset(null);
 
@@ -412,6 +431,24 @@ class AmbientMixer {
 	_deletePreset(presetId) {
 		if (this.presetManager._deleteCustomPreset(presetId)) {
 			this.ui._removeCustomPrest(presetId);
+		}
+	}
+
+	_onTimerComplete() {
+		//stop all sound
+		this.soundManager._pauseAll();
+		this.ui._updateMainPlayBtn(false);
+		sounds.forEach((sound) => {
+			this.ui._updateSoundPlayBtn(sound.id, false);
+		});
+
+		// reset timer dropdown
+		const timerSelect = document.getElementById('timerSelect');
+		timerSelect.value = 0;
+
+		if (this.ui.timerDisplay) {
+			this.ui.timerDisplay.textContent = '';
+			this.ui.timerDisplay.classList.add('hidden');
 		}
 	}
 }

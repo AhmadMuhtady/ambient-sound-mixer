@@ -157,7 +157,7 @@ export class UI {
 		});
 		const cards = document.querySelectorAll('.sound-card');
 		cards.forEach((card) => {
-			card.classList.remove('fa-playing');
+			card.classList.remove('playing');
 		});
 
 		this._updateMainPlayBtn(false);
@@ -210,6 +210,18 @@ export class UI {
 
 		if (btn) {
 			btn.remove();
+		}
+	}
+
+	_updateTimerDisplay(minutes, seconds) {
+		if (this.timerDisplay) {
+			if (minutes > 0 || seconds > 0) {
+				const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+				this.timerDisplay.textContent = formattedTime;
+				this.timerDisplay.classList.remove('hidden');
+			} else {
+				this.timerDisplay.classList.add('hidden');
+			}
 		}
 	}
 }
